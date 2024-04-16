@@ -1,0 +1,8 @@
+Resources
+| where type == "microsoft.hybridcompute/machines"
+| project
+ // Resource = tostring(id),
+ // MachineName = tostring(properties.machineName),
+ Names = tostring(properties.osProfile.computerName),
+ Status = tostring(properties.status)
+| where Status == "Disconnected" or Status == "Expired"
