@@ -1,0 +1,12 @@
+ 
+InsightsMetrics
+| where Origin == "vm.azm.ms" and Namespace == "Memory"
+| extend TotalMemoryGB = todouble(todynamic(Tags)["vm.azm.ms/memorySizeMB"]) / 1000.0
+| summarize FreeMemoryGB = avg(Val) / 1000.0 by Computer, TotalMemoryGB, _ResourceId
+| extend UtilizationRatio = round((TotalMemoryGB - FreeMemoryGB) / TotalMemoryGB, 2)
+| where UtilizationRatio > 0.7
+| project
+    Computer,
+    TotalMemoryGB = round(TotalMemoryGB, 2),
+    FreeMemoryGB = round(FreeMemoryGB, 2),
+    UtilizationRatio
