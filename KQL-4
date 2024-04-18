@@ -1,0 +1,13 @@
+let EventLogs = 
+    Event
+    | where TimeGenerated >= ago(10m) // Fetch events within the last 10 minutes
+    | where EventID == 1074 // Assuming EventID 1074 represents server restart events -check this later ?
+    | project Computer, RenderedDescription;
+Perf
+| where CounterName == "System Up Time" or CounterName contains "Systembetriebszeit"
+| where CounterValue < 600
+| extend EventID = toint(CounterValue) // Assuming CounterValue holds the Event ID for restart events
+| distinct Computer, EventID
+| join kind=inner EventLogs on Computer
+| project Computer, EventID, RenderedDescription
+| summarize arg_max(EventID, *) by Computer
